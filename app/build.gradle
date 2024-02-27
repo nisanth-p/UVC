@@ -1,0 +1,71 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+
+}
+
+android {
+     namespace 'com.advantech.uvc'
+    //namespace 'http://schemas.android.com/apk/res-auto'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.advantech.uvc"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8" // Set the JVM target compatibility to Java 1.8
+    }
+    buildFeatures {
+        mlModelBinding true
+    }
+}
+
+dependencies {
+
+    implementation ('androidx.appcompat:appcompat:1.6.1'){
+        exclude group: 'com.android.support',module:'support-compat'
+       /* exclude group: 'androidx.core',module:'core'*/
+    }
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.code.gson:gson:2.9.0'
+    if (true){
+        implementation 'io.agora.rtc:full-sdk:3.4.7.3'
+    }else{
+        def agora_sdk_version = "4.3.0"
+        // case 1: full libs
+        implementation "io.agora.rtc:full-sdk:${agora_sdk_version}"
+        implementation "io.agora.rtc:full-screen-sharing:${agora_sdk_version}"
+    }
+
+    implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
+   //
+    implementation 'com.github.getActivity:XXPermissions:13.5'
+   implementation project(':libuvccamera')
+    implementation 'androidx.core:core-ktx:+'
+    implementation ('cn.hutool:hutool-core:5.8.26')
+    implementation 'commons-codec:commons-codec:1.16.0'
+    /* implementation 'com.herohan:UVCAndroid:1.0.5'*/
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
