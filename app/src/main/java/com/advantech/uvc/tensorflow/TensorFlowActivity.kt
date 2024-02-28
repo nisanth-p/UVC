@@ -103,7 +103,7 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart: ")
-        //initCameraHelper()
+        initCameraHelper()
         registerUSBReceiver()
         getUSBDeviceList()
     }
@@ -268,12 +268,12 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
                     override fun onStart(utteranceId: String?) {
                         Log.d(TAG, "onStart: voice =$utteranceId")
                         voiceStatus = true
-                        mCameraHelper!!.stopPreview()
+                       // mCameraHelper!!.stopPreview()
                     }
 
                     override fun onDone(utteranceId: String?) {
                         Log.d(TAG, "onDone: voice =$utteranceId")
-                        mCameraHelper!!.startPreview()
+                       // mCameraHelper!!.startPreview()
                         voiceStatus = false
                     }
 
@@ -315,7 +315,7 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
                 x = index
                 x *= 4
 
-                if (fl.toDouble() ==0.4&&numberOfDetections.size<2) {
+                if (fl.toDouble() ==0.5) {
                     paint.setColor(colors.get(index))
                     paint.style = Paint.Style.STROKE
                     canvas.drawRect(
