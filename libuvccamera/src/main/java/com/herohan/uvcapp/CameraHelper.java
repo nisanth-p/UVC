@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
@@ -283,7 +284,8 @@ public class CameraHelper implements ICameraHelper {
                     if (mService.isCameraOpened(mUsbDevice)) {
                         mService.closeCamera(mUsbDevice);
                     } else {
-//                        mCallbackWrapper.onCameraClose(mUsbDevice);
+                        Toast.makeText(mWeakContext.get(), "Camera Closed", Toast.LENGTH_SHORT).show();
+                        mCallbackWrapper.onCameraClose(mUsbDevice);
                     }
                 } catch (final Exception e) {
                     if (DEBUG) Log.e(TAG, "closeCamera:", e);

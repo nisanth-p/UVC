@@ -1,5 +1,6 @@
 package com.advantech.uvc.tensorflow
 
+
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -51,8 +52,7 @@ import org.tensorflow.lite.support.image.ops.ResizeOp
 import java.util.Locale
 import java.util.Random
 
-
-class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
+class CforYou :AppCompatActivity(), SurfaceHolder.Callback,
     TextureView.SurfaceTextureListener {
     private lateinit var textToSpeech: TextToSpeech
     private val TAG = "HHTensorFlowAct"
@@ -87,10 +87,8 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
     var localFrameViewContainer: FrameLayout? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_tensorflow)
+        setContentView(R.layout.activity_cfor_you)
         usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
-        initCameraHelper()
-        initViews()
         labels = FileUtil.loadLabels(this, "labels.txt")
         imageProcessor =
             ImageProcessor.Builder().add(ResizeOp(300, 300, ResizeOp.ResizeMethod.BILINEAR)).build()
@@ -98,7 +96,8 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
         val handlerThread = HandlerThread("videoThread")
         handlerThread.start()
         handler = Handler(handlerThread.looper)
-
+        initCameraHelper()
+        initViews()
     }
 
     override fun onStart() {
@@ -164,12 +163,12 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
             }
 
             override fun onDeviceOpen(device: UsbDevice?, isFirstOpen: Boolean) {
-
+                if (!isFirstOpen) {
                     Log.d(TAG, "onDeviceOpen: ")
-                    Toast.makeText(this@TensorFlowActivity, "onDeviceOpen", Toast.LENGTH_SHORT)
+                    Toast.makeText(this@CforYou, "onDeviceOpen", Toast.LENGTH_SHORT)
                         .show()
                     mCameraHelper?.openCamera()
-                if (!isFirstOpen) { }
+                }
             }
 
             override fun onCameraOpen(device: UsbDevice?) {
@@ -254,121 +253,116 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
 
     private fun tensorFlowConfig() {
         Log.d(TAG, "tensorFlowConfig: ")
-        if (mCameraHelper != null) {
-            var voiceStatus = false
-            textToSpeech = TextToSpeech(
-                applicationContext
-            ) { status ->
-                // if No error is found then only it will run
-                if (status != TextToSpeech.ERROR) {
-                    // To Choose language of speech
-                    textToSpeech.setLanguage(Locale.ENGLISH)
-                }
-                if (status == TextToSpeech.SUCCESS) {
-                    Log.d("TTS", "Initialization success")
-                    textToSpeech.setOnUtteranceProgressListener(object :
-                        UtteranceProgressListener() {
-                        override fun onStart(utteranceId: String?) {
-                            Log.d(TAG, "onStart: voice =$utteranceId")
-                            voiceStatus = true
-                            // mCameraHelper!!.stopPreview()
-                        }
+        var voiceStatus = false
+        textToSpeech = TextToSpeech(
+            applicationContext
+        ) { status ->
+            // if No error is found then only it will run
+            if (status != TextToSpeech.ERROR) {
+                // To Choose language of speech
+                textToSpeech.setLanguage(Locale.ENGLISH)
+            }
+            if (status == TextToSpeech.SUCCESS) {
+                Log.d("TTS", "Initialization success")
+                textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        Log.d(TAG, "onStart: voice =$utteranceId")
+                        voiceStatus = true
+                        // mCameraHelper!!.stopPreview()
+                    }
 
-                        override fun onDone(utteranceId: String?) {
-                            Log.d(TAG, "onDone: voice =$utteranceId")
-                            // mCameraHelper!!.startPreview()
-                            voiceStatus = false
-                        }
+                    override fun onDone(utteranceId: String?) {
+                        Log.d(TAG, "onDone: voice =$utteranceId")
+                        // mCameraHelper!!.startPreview()
+                        voiceStatus = false
+                    }
 
-                        override fun onError(utteranceId: String?) {
-                            Log.d(TAG, "onError: voice = $utteranceId")
-                        }
+                    override fun onError(utteranceId: String?) {
+                        Log.d(TAG, "onError: voice = $utteranceId")
+                    }
 
-                    })
+                })
+            }
+        }
+
+        mCameraHelper?.setFrameCallback({ frame ->
+            Log.d("TAG", "onFrame: ${frame} ")
+            // create an object textToSpeech and adding features into it
+            // create an object textToSpeech and adding features into it
+
+
+            bitmap = aspectRatioTextureView?.bitmap!!
+            var image = TensorImage.fromBitmap(bitmap)
+            image = imageProcessor.process(image)
+            val outputs = model.process(image)
+            val locations = outputs.locationsAsTensorBuffer.floatArray
+            val classes = outputs.classesAsTensorBuffer.floatArray
+            val scores = outputs.scoresAsTensorBuffer.floatArray
+            val numberOfDetections = outputs.numberOfDetectionsAsTensorBuffer.floatArray
+
+            var mutable = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+            val canvas = Canvas(mutable)
+
+            val h = mutable.height
+            val w = mutable.width
+            paint.textSize = h / 15f
+            paint.strokeWidth = h / 85f
+            var x = 0
+
+            scores.forEachIndexed { index, fl ->
+
+
+                x = index
+                x *= 4
+
+                if (fl.toDouble() ==0.5) {
+                    paint.setColor(colors.get(index))
+                    paint.style = Paint.Style.STROKE
+//                    canvas.drawRect(
+//                        RectF(
+//                            locations.get(x + 1) * w,
+//                            locations.get(x) * h,
+//                            locations.get(x + 3) * w,
+//                            locations.get(x + 2) * h
+//                        ), paint
+//                    )
+//                    paint.style = Paint.Style.FILL
+//                    canvas.drawText(
+//                        labels.get(classes.get(index).toInt()) + " " + fl.toString(),
+//                        locations.get(x + 1) * w,
+//                        locations.get(x) * h,
+//                        paint
+//                    )
+
+//                    synchronized(this) { ->
+//                        if (!voiceStatus) {
+//                            var mostRecentUtteranceID =
+//                                (Random().nextInt() % 9999999).toString() + ""
+//                            val params = HashMap<String, String>()
+//                            params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] =
+//                                mostRecentUtteranceID
+//                            textToSpeech.speak(
+//                                labels[classes.get(index).toInt()],
+//                                TextToSpeech.QUEUE_FLUSH,
+//                                params
+//                            )
+//                        }
+//                    }
+
                 }
             }
-
-            mCameraHelper?.setFrameCallback({ frame ->
-                Log.d("TAG", "onFrame: ${frame} ")
-                // create an object textToSpeech and adding features into it
-                // create an object textToSpeech and adding features into it
+            imageView.setImageBitmap(mutable)
 
 
-                bitmap = aspectRatioTextureView?.bitmap!!
-                var image = TensorImage.fromBitmap(bitmap)
-                image = imageProcessor.process(image)
-                val outputs = model.process(image)
-                val locations = outputs.locationsAsTensorBuffer.floatArray
-                val classes = outputs.classesAsTensorBuffer.floatArray
-                val scores = outputs.scoresAsTensorBuffer.floatArray
-                val numberOfDetections = outputs.numberOfDetectionsAsTensorBuffer.floatArray
+        }, UVCCamera.FRAME_FORMAT_YUYV)
 
-                var mutable = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-                val canvas = Canvas(mutable)
-
-                val h = mutable.height
-                val w = mutable.width
-                paint.textSize = h / 15f
-                paint.strokeWidth = h / 85f
-                var x = 0
-
-                scores.forEachIndexed { index, fl ->
-
-
-                    x = index
-                    x *= 4
-
-                    if (fl.toDouble() == 0.5) {
-                        paint.setColor(colors.get(index))
-                        paint.style = Paint.Style.STROKE
-                        canvas.drawRect(
-                            RectF(
-                                locations.get(x + 1) * w,
-                                locations.get(x) * h,
-                                locations.get(x + 3) * w,
-                                locations.get(x + 2) * h
-                            ), paint
-                        )
-                        paint.style = Paint.Style.FILL
-                        canvas.drawText(
-                            labels.get(classes.get(index).toInt()) + " " + fl.toString(),
-                            locations.get(x + 1) * w,
-                            locations.get(x) * h,
-                            paint
-                        )
-
-                        synchronized(this) { ->
-                            if (!voiceStatus) {
-                                var mostRecentUtteranceID =
-                                    (Random().nextInt() % 9999999).toString() + ""
-                                val params = HashMap<String, String>()
-                                params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] =
-                                    mostRecentUtteranceID
-                                textToSpeech.speak(
-                                    labels[classes.get(index).toInt()],
-                                    TextToSpeech.QUEUE_FLUSH,
-                                    params
-                                )
-                            }
-                        }
-
-                    }
-                }
-                imageView.setImageBitmap(mutable)
-
-
-            }, UVCCamera.FRAME_FORMAT_YUYV)
-        }else
-        {
-            Toast.makeText(this@TensorFlowActivity,"Camera is now closed",Toast.LENGTH_SHORT).show()
-        }
     }
 
     /************************TEXTURE VIEW********************************/
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         Log.d(TAG, "onSurfaceTextureAvailable: width = $width, height = $height")
-        if (mUsbDevice != null) selectDevice(mUsbDevice)
+        selectDevice(mUsbDevice)
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
@@ -385,7 +379,7 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
         if (mCameraHelper != null) {
             Log.d("TAG", "onSurfaceTextureUpdated: camera open =${mCameraHelper!!.isCameraOpened}")
-
+            return
         }
 
         // aspectRatioTextureView?.setSurfaceTexture(surface)
@@ -507,7 +501,7 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
 
     /************************SURFACE VIEW********************************/
     override fun surfaceCreated(holder: SurfaceHolder) {
-        Toast.makeText(this@TensorFlowActivity, "surfaceCreated", Toast.LENGTH_SHORT)
+        Toast.makeText(this@CforYou, "surfaceCreated", Toast.LENGTH_SHORT)
             .show()
         if (mCameraHelper != null) {
             Log.d(TAG, "surfaceCreated: holder = $holder ")
@@ -516,7 +510,7 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        Toast.makeText(this@TensorFlowActivity, "surfaceChanged", Toast.LENGTH_SHORT)
+        Toast.makeText(this@CforYou, "surfaceChanged", Toast.LENGTH_SHORT)
             .show()
         Log.d(TAG, "surfaceChanged: holder = $holder ,width =$width, height =$height")
     }
@@ -544,8 +538,6 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
         }
     }
 
-
-
     fun onCameraClose(view: View) {
         mCameraHelper!!.release()
         if (mCameraHelper!!.isCameraOpened()) {
@@ -556,8 +548,6 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
 
         Toast.makeText(this, "onCameraClose", Toast.LENGTH_SHORT).show()
     }
-
-
 
     fun onCameraOn(view: View) {
         initCameraHelper()
@@ -571,6 +561,9 @@ class TensorFlowActivity : AppCompatActivity(), SurfaceHolder.Callback,
                 //usbManager?.requestPermission(list[0], mPermissionIntent)
             }
         }
+
+
+
         Toast.makeText(this, "onCameraOn", Toast.LENGTH_SHORT).show()
     }
 }

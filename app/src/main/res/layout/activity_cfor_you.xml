@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".tensorflow.TensorFlowActivity"
-    android:background="#F30B0B0B">
+    android:background="#F30B0B0B"
+    tools:context=".tensorflow.CforYou">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Object Detetion"
+        android:text="C4U"
         android:textColor="@color/white"
         android:textSize="35dp"
         android:textStyle="bold"
@@ -74,8 +74,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom|center"
+        android:layout_marginBottom="28dp"
 
+        android:gravity="bottom|center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="MissingConstraints"
@@ -86,11 +87,11 @@
             android:layout_width="65dp"
             android:layout_height="65dp"
             android:layout_margin="10dp"
+            android:layout_marginBottom="20dp"
             android:backgroundTint="@color/white"
             android:onClick="onCameraClose"
             android:scaleType="centerInside"
-            android:src="@drawable/cam_off"
-            android:tint="@color/white"
+            android:src="@drawable/f"
             tools:ignore="SpeakableTextPresentCheck,UseAppTint"
             tools:layout_editor_absoluteX="121dp"
             tools:layout_editor_absoluteY="608dp" />
@@ -104,8 +105,8 @@
             android:contentDescription="@string/agora_access_token"
             android:onClick="onCameraOn"
             android:scaleType="centerInside"
-            android:src="@drawable/cam_on"
-            android:tint="@color/white"
+            android:src="@drawable/df"
+
             tools:ignore="UseAppTint"
             tools:layout_editor_absoluteX="226dp"
             tools:layout_editor_absoluteY="608dp" />

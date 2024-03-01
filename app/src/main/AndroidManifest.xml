@@ -26,6 +26,10 @@
         android:theme="@style/Theme.UVC"
         tools:targetApi="31">
         <activity
+            android:name=".tensorflow.CforYou"
+            android:exported="false" />
+
+        <activity
             android:name=".tensorflow.TensorFlowActivity"
             android:exported="false" />
         <activity

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">UVC</string>
+    <string name="app_name" translatable="false">HearSight</string>
     <!-- <string name="agora_app_id" translatable="false">5bffe0a0b95345bd98ff16f92b06b32c</string>
     <string name="agora_temp_token" translatable="false">007eJxTYHjUI/f20QUTtfxd0jPTMkJW5Qskltw7+nF+b5kK5wUPu80KDClJZokpaRbGqSZGSSbmRokWRkYmqSaWZuZpJslphsYW7zcfSW0IZGTYek6YmZEBAkF8PgaP1MSi4Mz0jBLH9PyiRAYGAPi8JH0=</string>
     <string name="channel_name" translatable="false">HearSightAgora</string>
